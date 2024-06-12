@@ -4,6 +4,7 @@ from common import format_tour, read_input
 
 import solver_greedy
 import solver_random
+import test2
 
 CHALLENGES = 7
 
@@ -15,6 +16,13 @@ def generate_sample_output():
             tour = solver.solve(cities)
             with open(f'sample/{name}_{i}.csv', 'w') as f:
                 f.write(format_tour(tour) + '\n')
+
+    #test3 outputのファイルを生成
+    for i in range(CHALLENGES):
+        cities = read_input(f'input_{i}.csv')
+        tour = test2.solve(cities)
+        with open(f'output_{i}.csv', 'w') as f:
+            f.write(format_tour(tour) + '\n')
 
 
 if __name__ == '__main__':
