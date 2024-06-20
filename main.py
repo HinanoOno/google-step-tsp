@@ -30,6 +30,7 @@ def create_mst(dist, N):
             one_edge_node.append(i)
             
     # Check if there are two nodes with only one edge
+    #To do : 葉が2個とは限らない
     if len(one_edge_node) >= 2:
         mst[one_edge_node[0]].append(one_edge_node[1])
         mst[one_edge_node[1]].append(one_edge_node[0])
@@ -37,7 +38,7 @@ def create_mst(dist, N):
     return mst
 
 # Create a path from the minimum spanning tree
-def create_path(mst,N):
+def create_path(dist,mst,N):
     visited = set()
     current = 0
     path = [current]
@@ -46,13 +47,15 @@ def create_path(mst,N):
     while len(path) < N:
         next_node = mst[current][0]
         if next_node in visited:
+            #To do : ここでmst[current][1]の確認ができていない
             next_node = mst[current][1]
         visited.add(next_node)
         path.append(next_node)
         current = next_node
-    
+    print(path)
     return path
 
+        
 # 2-opt algorithm to improve the solution
 def two_opt(tour, dist):
     N = len(tour)
@@ -71,6 +74,45 @@ def two_opt(tour, dist):
             break
     return tour
 
+#or-1pt algorithm to improve the solution
+def or_opt(tour, dist):
+    N = len(tour)
+    while True:
+        count = 0
+        for i in range(N):
+            i0 = i
+            i1 = (i + 1) % N
+            i2 = (i + 2) % N
+            for j in range(N):
+                j0 = j
+                j1 = (j + 1) % N
+                if j0 not in {i0, i1}:
+                    l1 = dist[tour[i0]][tour[i1]]
+                    l2 = dist[tour[i1]][tour[i2]]
+                    l3 = dist[tour[j0]][tour[j1]]
+                    l4 = dist[tour[j0]][tour[i1]]
+                    l5 = dist[tour[j1]][tour[i1]]
+                    l6 = dist[tour[i0]][tour[i2]]
+                    if l1 + l2 + l3 > l4 + l5 + l6:
+                        city = tour.pop(i1)
+                        if i1 < j1:
+                            tour.insert(j0, city)
+                        else:
+                            tour.insert(j1, city)
+                        count += 1
+        if count != 0:
+            is_improved = True
+        else:
+            is_improved = False
+        if not is_improved:
+            break
+    print(tour)
+    return tour
+                    
+            
+        
+   
+
 
 def solve(cities):
     N = len(cities)
@@ -79,8 +121,10 @@ def solve(cities):
         for j in range(i, N):
             dist[i][j] = dist[j][i] = distance(cities[i], cities[j])
     mst = create_mst(dist, N)
-    tour = create_path(mst,N)
+    tour = create_path(dist,mst,N)
     tour = two_opt(tour, dist)
+    tour = or_opt(tour, dist)
+
     
     return tour
             
@@ -88,4 +132,4 @@ def solve(cities):
 if __name__ == '__main__':
     assert len(sys.argv) > 1
     tour = solve(read_input(sys.argv[1]))
-    print_tour(tour)
+    #print_tour(tour)
